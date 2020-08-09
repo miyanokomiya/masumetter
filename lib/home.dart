@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'maru_batsu.dart';
+import 'gomoku.dart';
 
 class Home extends StatefulWidget {
   Home({Key key, this.title}) : super(key: key);
@@ -20,12 +21,22 @@ class _MyHomePageState extends State<Home> {
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
-          children: <Widget>[
+          children: [
+            Container(
+              margin: EdgeInsets.only(bottom: 40),
+              child: RaisedButton(
+                child: Text('⭕️ ❌', style: TextStyle(fontSize: 50)),
+                onPressed: () {
+                  Navigator.push(context,
+                      MaterialPageRoute(builder: (context) => MaruBatsu()));
+                },
+              ),
+            ),
             RaisedButton(
-              child: Text('⭕️ ❌', style: TextStyle(fontSize: 50)),
+              child: Text('⭕️❌⭕️❌⭕️', style: TextStyle(fontSize: 50)),
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => MaruBatsu()));
+                Navigator.push(
+                    context, MaterialPageRoute(builder: (context) => Gomoku()));
               },
             ),
           ],

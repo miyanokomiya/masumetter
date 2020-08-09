@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'cells.dart';
 
-class MaruBatsu extends StatefulWidget {
+class Gomoku extends StatefulWidget {
   @override
-  _MaruBatsuState createState() => _MaruBatsuState();
+  _GomokuState createState() => _GomokuState();
 }
 
 enum PlayerTern {
@@ -11,7 +11,9 @@ enum PlayerTern {
   Batsu,
 }
 
-class _MaruBatsuState extends State<MaruBatsu> {
+class _GomokuState extends State<Gomoku> {
+  static const cellSize = 10;
+
   List<List<Cell>> cells;
   PlayerTern playerTern;
 
@@ -24,23 +26,8 @@ class _MaruBatsuState extends State<MaruBatsu> {
   reset() {
     setState(() {
       this.playerTern = PlayerTern.Maru;
-      this.cells = [
-        [
-          Cell.init(),
-          Cell.init(),
-          Cell.init(),
-        ],
-        [
-          Cell.init(),
-          Cell.init(),
-          Cell.init(),
-        ],
-        [
-          Cell.init(),
-          Cell.init(),
-          Cell.init(),
-        ]
-      ];
+      this.cells = new List.generate(_GomokuState.cellSize,
+          (r) => new List.generate(_GomokuState.cellSize, (c) => Cell.init()));
     });
   }
 
@@ -64,7 +51,7 @@ class _MaruBatsuState extends State<MaruBatsu> {
 
     return Scaffold(
         appBar: AppBar(
-          title: Text("⭕️ ❌"),
+          title: Text("⭕️❌⭕️❌⭕️"),
         ),
         body: Column(children: [
           StatusWidget(gameStatus),
@@ -159,17 +146,17 @@ class CellWidget extends StatelessWidget {
     Text text;
     switch (this.cell.status) {
       case CellStatus.Maru:
-        text = Text('⭕️', style: TextStyle(fontSize: 50));
+        text = Text('⭕️', style: TextStyle(fontSize: 20));
         break;
       case CellStatus.Batsu:
-        text = Text('❌', style: TextStyle(fontSize: 50));
+        text = Text('❌', style: TextStyle(fontSize: 20));
         break;
       default:
-        text = Text('-', style: TextStyle(fontSize: 50));
+        text = Text('-', style: TextStyle(fontSize: 20));
         break;
     }
 
-    return Container(width: 100, height: 100, child: Center(child: text));
+    return Container(width: 36, height: 36, child: Center(child: text));
   }
 }
 
@@ -197,24 +184,26 @@ enum GameStatus {
 }
 
 GameStatus getGameStatus(List<List<Cell>> cells) {
-  if (isSeries3(cells, CellStatus.Maru)) return GameStatus.WinMaru;
-  if (isSeries3(cells, CellStatus.Batsu)) return GameStatus.WinBatsu;
+  if (isSeries5(cells, CellStatus.Maru)) return GameStatus.WinMaru;
+  if (isSeries5(cells, CellStatus.Batsu)) return GameStatus.WinBatsu;
   if (cells.every((row) => row.every((cell) => cell.status != CellStatus.None)))
     return GameStatus.Draw;
   return GameStatus.Playing;
 }
 
-bool isSeries3(List<List<Cell>> cells, CellStatus cellStatus) {
-  if (cells.firstWhere((row) => row.every((cell) => cell.status == cellStatus),
-          orElse: () => null) !=
+bool isSeries5(List<List<Cell>> cells, CellStatus cellStatus) {
+  var valid = (Cell cell) {
+    return cell.status == cellStatus;
+  };
+
+  if (cells.firstWhere((row) => isSeriesN(row, 5, valid), orElse: () => null) !=
       null) return true;
 
   final transposed = transpose(cells);
-  if (transposed.firstWhere(
-          (row) => row.every((cell) => cell.status == cellStatus),
+  if (transposed.firstWhere((row) => isSeriesN(row, 5, valid),
           orElse: () => null) !=
       null) return true;
 
-  if ([0, 1, 2].every((i) => cells[i][2 - i].status == cellStatus)) return true;
+  if (isCrossSeriesN(cells, 5, valid)) return true;
   return false;
 }
