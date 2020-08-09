@@ -2,7 +2,7 @@
 
 A study project of Flutter.
 
-for web: https://miyanokomiya.github.io/masumetter/
+for web: https://miyanokomiya.github.io/masumetter/index.html
 
 ## Getting Started
 

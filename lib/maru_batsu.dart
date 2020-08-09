@@ -207,11 +207,37 @@ bool isSeries3(List<List<Cell>> cells, CellStatus cellStatus) {
   if (cells.firstWhere((row) => row.every((cell) => cell.status == cellStatus),
           orElse: () => null) !=
       null) return true;
-  if ([0, 1, 2].firstWhere(
-          (i) => cells.every((row) => row[0].status == cellStatus),
+
+  final transposed = transpose(cells);
+  if (transposed.firstWhere(
+          (row) => row.every((cell) => cell.status == cellStatus),
           orElse: () => null) !=
       null) return true;
-  if ([0, 1, 2].every((i) => cells[i][i].status == cellStatus)) return true;
+
+  if ([0, 1, 2].firstWhere(
+          (c) => [0, 1, 2].every((r) => transposed[r][c].status == cellStatus),
+          orElse: () => null) !=
+      null) return true;
+
   if ([0, 1, 2].every((i) => cells[i][2 - i].status == cellStatus)) return true;
   return false;
+}
+
+List<List<T>> transpose<T>(List<List<T>> matrix) {
+  final int rowLength = matrix.length;
+  if (matrix.length == 0) return matrix;
+
+  final int colLength = matrix[0].length;
+
+  final List<List<T>> ret = new List(colLength);
+  for (int col = 0; col < colLength; col++) {
+    ret[col] = new List(rowLength);
+  }
+
+  for (int row = 0; row < rowLength; row++) {
+    for (int col = 0; col < colLength; col++) {
+      ret[col][row] = matrix[row][col];
+    }
+  }
+  return ret;
 }
