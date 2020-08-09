@@ -1,6 +1,8 @@
-# my_app
+# masumetter
 
-A new Flutter project.
+A study project of Flutter.
+
+for web: https://miyanokomiya.github.io/masumetter/
 
 ## Getting Started
 
