@@ -205,16 +205,7 @@ GameStatus getGameStatus(List<List<Cell>> cells) {
 }
 
 bool isSeries3(List<List<Cell>> cells, CellStatus cellStatus) {
-  if (cells.firstWhere((row) => row.every((cell) => cell.status == cellStatus),
-          orElse: () => null) !=
-      null) return true;
-
-  final transposed = transpose(cells);
-  if (transposed.firstWhere(
-          (row) => row.every((cell) => cell.status == cellStatus),
-          orElse: () => null) !=
-      null) return true;
-
-  if ([0, 1, 2].every((i) => cells[i][2 - i].status == cellStatus)) return true;
-  return false;
+  return isMatrixSeriesN(cells, 3, (Cell cell) {
+    return cell.status == cellStatus;
+  });
 }

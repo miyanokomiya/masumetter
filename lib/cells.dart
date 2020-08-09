@@ -109,3 +109,18 @@ bool isCrossSeriesN<T>(
 
   return false;
 }
+
+bool isMatrixSeriesN<T>(
+    final List<List<T>> matrix, final int count, final bool Function(T) valid) {
+  if (matrix.firstWhere((row) => isSeriesN(row, count, valid),
+          orElse: () => null) !=
+      null) return true;
+
+  final transposed = transpose(matrix);
+  if (transposed.firstWhere((row) => isSeriesN(row, count, valid),
+          orElse: () => null) !=
+      null) return true;
+
+  if (isCrossSeriesN(matrix, count, valid)) return true;
+  return false;
+}

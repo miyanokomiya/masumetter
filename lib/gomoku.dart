@@ -192,18 +192,7 @@ GameStatus getGameStatus(List<List<Cell>> cells) {
 }
 
 bool isSeries5(List<List<Cell>> cells, CellStatus cellStatus) {
-  var valid = (Cell cell) {
+  return isMatrixSeriesN(cells, 5, (Cell cell) {
     return cell.status == cellStatus;
-  };
-
-  if (cells.firstWhere((row) => isSeriesN(row, 5, valid), orElse: () => null) !=
-      null) return true;
-
-  final transposed = transpose(cells);
-  if (transposed.firstWhere((row) => isSeriesN(row, 5, valid),
-          orElse: () => null) !=
-      null) return true;
-
-  if (isCrossSeriesN(cells, 5, valid)) return true;
-  return false;
+  });
 }
