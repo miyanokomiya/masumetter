@@ -22,6 +22,7 @@ jobs:
           flutter upgrade
           flutter config --enable-web
           flutter pub get
+          flutter doctor -v
 
       - name: Build
         run: flutter build web
