@@ -22,7 +22,7 @@ class _MyHomePageState extends State<Home> {
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
             RaisedButton(
-              child: Text('⭕️ ❌'),
+              child: Text('⭕️ ❌', style: TextStyle(fontSize: 50)),
               onPressed: () {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => MaruBatsu()));

@@ -46,54 +46,105 @@ class _MaruBatsuState extends State<MaruBatsu> {
   selectCell(int r, int c) {
     setState(() {
       if (this.cells[r][c].status != CellStatus.None) return;
+
       if (this.playerTern == PlayerTern.Maru) {
         this.cells[r][c].status = CellStatus.Maru;
         this.playerTern = PlayerTern.Batsu;
       } else {
         this.cells[r][c].status = CellStatus.Batsu;
-        this.playerTern = PlayerTern.Batsu;
+        this.playerTern = PlayerTern.Maru;
       }
     });
   }
 
   @override
   Widget build(BuildContext context) {
+    GameStatus gameStatus = getGameStatus(this.cells);
+
     return Scaffold(
         appBar: AppBar(
           title: Text("⭕️ ❌"),
         ),
         body: Column(children: [
-          Center(
-              child: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: cells
-                .asMap()
-                .entries
-                .map((rowEntry) => Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: rowEntry.value
-                        .asMap()
-                        .entries
-                        .map((columnEntry) => GestureDetector(
-                            onTap: () {
-                              this.selectCell(rowEntry.key, columnEntry.key);
-                            },
-                            child: CellWidget(columnEntry.value)))
-                        .toList()))
-                .toList(),
-          )),
+          StatusWidget(gameStatus),
           Container(
-            margin: EdgeInsets.only(top: 10),
+            margin: EdgeInsets.only(bottom: 40),
+            child: Center(
+                child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: cells
+                  .asMap()
+                  .entries
+                  .map((rowEntry) => Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: rowEntry.value
+                          .asMap()
+                          .entries
+                          .map((columnEntry) => GestureDetector(
+                              behavior: HitTestBehavior.opaque,
+                              onTap: () {
+                                if (gameStatus == GameStatus.Playing)
+                                  this.selectCell(
+                                      rowEntry.key, columnEntry.key);
+                              },
+                              child: CellWidget(columnEntry.value)))
+                          .toList()))
+                  .toList(),
+            )),
+          ),
+          Container(
+            margin: EdgeInsets.only(bottom: 40),
             child: Row(mainAxisSize: MainAxisSize.min, children: [
               RaisedButton(
-                child: Text('CLEAR'),
+                child: Text('CLEAR', style: TextStyle(fontSize: 30)),
                 onPressed: () {
                   this.reset();
                 },
               )
             ]),
+          ),
+          Container(
+            margin: EdgeInsets.only(bottom: 20),
+            child: Row(mainAxisSize: MainAxisSize.min, children: [
+              RaisedButton(
+                child: Text('BACK', style: TextStyle(fontSize: 20)),
+                onPressed: () {
+                  Navigator.pop(context);
+                },
+              )
+            ]),
           )
         ]));
+  }
+}
+
+class StatusWidget extends StatelessWidget {
+  final GameStatus gameStatus;
+
+  StatusWidget(this.gameStatus);
+
+  @override
+  Widget build(BuildContext context) {
+    Text text;
+    switch (this.gameStatus) {
+      case GameStatus.WinMaru:
+        text = Text('Win ⭕️', style: TextStyle(fontSize: 50));
+        break;
+      case GameStatus.WinBatsu:
+        text = Text('Win ❌', style: TextStyle(fontSize: 50));
+        break;
+      case GameStatus.Draw:
+        text = Text('Draw', style: TextStyle(fontSize: 50));
+        break;
+      default:
+        text = Text('Playing', style: TextStyle(fontSize: 50));
+        break;
+    }
+
+    return Container(
+        height: 80,
+        margin: EdgeInsets.only(bottom: 10),
+        child: Center(child: text));
   }
 }
 
@@ -117,7 +168,7 @@ class CellWidget extends StatelessWidget {
         break;
     }
 
-    return Container(width: 80, height: 80, child: Center(child: text));
+    return Container(width: 100, height: 100, child: Center(child: text));
   }
 }
 
@@ -135,4 +186,32 @@ class Cell {
   Cell.init() {
     this.status = CellStatus.None;
   }
+}
+
+enum GameStatus {
+  Playing,
+  WinMaru,
+  WinBatsu,
+  Draw,
+}
+
+GameStatus getGameStatus(List<List<Cell>> cells) {
+  if (isSeries3(cells, CellStatus.Maru)) return GameStatus.WinMaru;
+  if (isSeries3(cells, CellStatus.Batsu)) return GameStatus.WinBatsu;
+  if (cells.every((row) => row.every((cell) => cell.status != CellStatus.None)))
+    return GameStatus.Draw;
+  return GameStatus.Playing;
+}
+
+bool isSeries3(List<List<Cell>> cells, CellStatus cellStatus) {
+  if (cells.firstWhere((row) => row.every((cell) => cell.status == cellStatus),
+          orElse: () => null) !=
+      null) return true;
+  if ([0, 1, 2].firstWhere(
+          (i) => cells.every((row) => row[0].status == cellStatus),
+          orElse: () => null) !=
+      null) return true;
+  if ([0, 1, 2].every((i) => cells[i][i].status == cellStatus)) return true;
+  if ([0, 1, 2].every((i) => cells[i][2 - i].status == cellStatus)) return true;
+  return false;
 }
